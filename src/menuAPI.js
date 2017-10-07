@@ -5,6 +5,6 @@ accessForm.append('vendor_id', '1');
 export const getMenu = () => 
 	fetch('', {
             method: 'POST',
-            body: JSON.stringify({'vendor_id': '1'}),
+            body: JSON.stringify({}),
         }).then(response => response.json());
 
