@@ -15,10 +15,14 @@ class App extends Component {
         })
     }
     render() {
+        console.log(this.state.menu);
         return (
-                <div>
+                <div className='menu-container'>
+                    <div className='navbar'>Fetchum</div>
                     <Menu 
                         menu={this.state.menu.menu}
+                        editMenu={true}
+                        vendor_id={'rg7SuZjxSSSrv6erWCLgxOSWSKw2'}
                     />
                 </div>
             );

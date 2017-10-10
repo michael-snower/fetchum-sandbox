@@ -1,0 +1,90 @@
+.item-grey {
+	width: 100%;
+	height: 30px;
+	background-color: #f7f7f7;
+}
+
+.item-white {
+	width: 100%;
+	height: 30px;
+	background-color: white;
+}
+
+.visible {
+	display: inline-block;
+	margin-top: 5px;
+}
+.fade {
+	display: inline-block;
+	margin-top: 5px;
+	text-decoration: line-through;
+	color: red;
+}
+
+.unavailable-button {
+	display: inline-block;
+	float: right;
+	margin-top: 4px;
+	font-size: 14px;
+	padding: 2px;
+	color: red;
+	text-decoration: underline; 
+	cursor: pointer;
+}
+
+.available-button {
+	display: inline-block;
+	float: right;
+	margin-top: 4px;
+	font-size: 14px;
+	padding: 2px;
+	color: green;
+	text-decoration: underline; 
+	cursor: pointer;
+}
+
+.popup {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%); 
+	width: 300px;
+	height: 150px; 
+	text-align: center;
+	background-color: white;
+	padding: 5px; 
+	border: 4px solid #FFCC33;
+	border-radius: 8px;
+	z-index: 1;
+}
+
+.popup-content {
+	margin-top: 20px;
+}
+
+.confirm-button {
+	display: inline-block;
+	position: absolute;
+	bottom: 10%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-left: 45px;
+	padding: 3px;
+	border: 1px solid black;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.cancel-button {
+	display: inline-block;
+	position: absolute;
+	bottom: 10%;
+	right: 50%;
+	transform: translateX(50%);
+	margin-right: 45px;
+	padding: 3px;
+	border: 1px solid black;
+	border-radius: 2px;
+	cursor: pointer;
+
+}
