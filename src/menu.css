@@ -89,5 +89,10 @@ textarea:focus, input:focus {
 
 .categories {
 	padding-left: 0px;
-	margin-top: -5px;
+	margin-left: -10px;
+	width: 618px;
+}
+
+.unavailable-items {
+	padding-left: 0px;
 }

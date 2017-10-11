@@ -31,19 +31,24 @@ class MenuItem extends Component {
 	}
 	handlePopUpConfirmClick = (itemInfo) => {
 		if (this.props.editMenu) {
-			this.setState({
-				popup: false,
-			})
-			// Fetch with vendor_id, menu_id, available: yes/no
-			// use menu object to set state 
-			console.log(itemInfo.menuitem_id);
+			let newAvailability = '';
+			if (this.props.unavailable) {
+				newAvailability = 'Yes';
+			}
+			if (!this.props.unavailable) {
+				newAvailability = 'No';
+			}
 			let aPIInfo = {
-					'vendor_id': this.props.vendor_id,
+					'vendor_id': this.props.vendorId,
 					'menuitem_id': itemInfo.menuitem_id,
-					'is_available': itemInfo.is_available,
+					'is_available': newAvailability,
 				}
 			MenuAPI.itemAvailability(aPIInfo).then( (response) =>
 				console.log(response));
+			this.setState({
+				popup: false,
+			});
+			this.props.handleAvailableClick(itemInfo, !this.props.unavailable);
 		}
 		else {
 		}
@@ -52,11 +57,12 @@ class MenuItem extends Component {
 		let info = this.props.info;
 		let name = this.props.info.item_name;
 		let price = this.props.info.item_price;
-		let availability = this.props.info.is_available;
+		let itemKey = this.props.itemKey;
+		let unavailable = this.props.unavailable;
 		let buttonTitle = '';
 		let buttonClass = '';
 		if (this.props.editMenu) {
-			if (availability === 'Yes') {
+			if (!unavailable) {
 				buttonTitle = 'Make Unavailable';
 				buttonClass = 'unavailable-button';
 			}
@@ -67,20 +73,23 @@ class MenuItem extends Component {
 		}
 		else {
 			buttonTitle = 'Add to Order';
+			buttonClass = 'available-button';
 		}
 		// Changes item visibility if item is not available
 		let itemVisibility = 'visible';
-		if (availability === 'No') {
-			itemVisibility = 'fade'
+		if (unavailable) {
+			itemVisibility = 'fade';
 		}
 		let itemBackgroundColor = 'item-grey';
-		if (this.props.itemKey %2 !== 0) {
+		if (itemKey %2 !== 0) {
 			itemBackgroundColor = 'item-white';
 		}
 		return (
 				<div className={itemBackgroundColor}>
-					<span className={itemVisibility}>{name}</span>
-					<span className={itemVisibility} style={{marginLeft: '10px', color: 'grey'}}>${price}</span>
+					<div className='item-information'>
+						<span className={itemVisibility}>{name}</span>
+						<span className={itemVisibility} style={{marginLeft: '10px', color: 'grey'}}>${price}</span>
+					</div>
 					<span 
 						className={buttonClass} 
 						onClick={() => this.handleButtonClick()}
@@ -92,7 +101,7 @@ class MenuItem extends Component {
 							<div className='popup-content'>{this.state.popupContent}</div>
 							{this.state.quantity && 
 								<input
-									value='1'
+									placeholder='1'
 									style={{width: '5px'}}
 									>
 								</input>

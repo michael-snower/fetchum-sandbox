@@ -9,8 +9,8 @@ class Menu extends Component {
     state = {
         clickedCategory: '',
         query: '',
-        additionalUnavailableItems: [],
         viewUnavailableItems: false,
+        additionalUnavailableItems: [],
     }
     handleEditMenuClick = () => {
         this.setState({
@@ -47,20 +47,27 @@ class Menu extends Component {
             clickedCategory: '',
         });
     }
-    handleAvailableClick = (item) => {
+    handleAvailableClick = (item, nowUnavailable) => {
         for (let category of this.props.menu) {
             for (let category_item of category.items) {
                 if (item.menuitem_id === category_item.menuitem_id) {
                     let additionalUnavailableItems = this.state.additionalUnavailableItems;
-                    if (category_item.is_available === 'Yes') {
+                    if (nowUnavailable) {
                         additionalUnavailableItems.push(item);
+                        this.setState({
+                            additionalUnavailableItems: additionalUnavailableItems,
+                        })
                     }
-                    if (category_item.is_available === 'No') {
+                    if (!nowUnavailable) {
+                        let itemIndex = additionalUnavailableItems.indexOf(item);
+                        additionalUnavailableItems.splice(itemIndex, 1);
+                        this.setState({
+                            additionalUnavailableItems: additionalUnavailableItems,
+                        })
                     }
                 }
             }
         }
-        console.log(this.state.additionalUnavailableItems);
     }
 	render() {
         // Styles tabs based on which one is clicked
@@ -79,7 +86,7 @@ class Menu extends Component {
         // When category is clicked, updates page title and item list
         if (this.state.clickedCategory) {
             headerTitle = this.state.clickedCategory;
-            backButtonText = 'Show All Categories';
+            backButtonText = 'Back';
             backButtonVisibility = 'back-button';
             let selectedCategory = [];
             let match = new RegExp(escapeRegExp(this.state.clickedCategory), 'i');
@@ -107,18 +114,23 @@ class Menu extends Component {
         // Creates array with all items marked unavailable on the menu from the AJAX request
         let unavailableItems = [];
         for (let category of menu) {
-            if (category.category.category_name === 'Soups') {
-            }
             for (let item of category['items']) {
                 if (item.is_available === 'No') {
+                    item.unavailable = true;
                     unavailableItems.push(item);
+                }
+                else {
+                    item.unavailable = false;
                 }
             } 
         }
         // Update unavailable item list with items that have been made unavailable after the
         // last page refresh; also updates their available flags on the menu
         for (let a_item of this.state.additionalUnavailableItems) {
-        }  
+            a_item.unavailable = true;
+            unavailableItems.push(a_item);
+        }
+        let unavailableCount = unavailableItems.length;
         // Alphabetically sort items
         selectedItems.sort(sortBy('item_name'));
         // Displays category list if no category has been selected
@@ -126,84 +138,88 @@ class Menu extends Component {
             selectedCategories = menu;
         }
 		return (
-				<div className='menu'>
-                    {this.props.editMenu && 
-                        <div className='tab-bar'>
+			<div className='menu'>
+                {this.props.editMenu && 
+                    <div className='tab-bar'>
+                        <div 
+                            className={menuTabVisibility}
+                            onClick={() => this.handleEditMenuClick()}>
+                            Edit Menu
+                        </div>
+                        <div 
+                            className={unavailableTabVisibility}
+                            onClick={() => this.handleViewUnavailableClick()}>
+                            View Unavailable Items ({unavailableCount})
+                        </div>
+                    </div>
+                }
+                {!this.state.viewUnavailableItems && 
+                    <div className='menu-interface'>
+                        <div className='search-box'>
+                            <input
+                                type='text' 
+                                placeholder='Start typing to search for a menu item...' 
+                                value = {this.state.query}
+                                onChange={(event) => this.updateQuery(event.target.value)}
+                                className='search-input'>
+                            </input>
+                        </div>
+                        <div className='menu-navbar'>
+                            <div className='menu-header'>{headerTitle}</div>
                             <div 
-                                className={menuTabVisibility}
-                                onClick={() => this.handleEditMenuClick()}>
-                                Edit Menu
-                            </div>
-                            <div 
-                                className={unavailableTabVisibility}
-                                onClick={() => this.handleViewUnavailableClick()}>
-                                View Unavailable Items
+                                className={backButtonVisibility} 
+                                onClick={() => this.handleBackClick()} 
+                                >{backButtonText}
                             </div>
                         </div>
-                    }
-                    {!this.state.viewUnavailableItems && 
-                        <div className='menu-interface'>
-                            <div className='search-box'>
-                                <input
-                                    type='text' 
-                                    placeholder='Start typing to search for a menu item...' 
-                                    value = {this.state.query}
-                                    onChange={(event) => this.updateQuery(event.target.value)}
-                                    className='search-input'>
-                                </input>
-                            </div>
-                            <div className='menu-navbar'>
-                                <div className='menu-header'>{headerTitle}</div>
-                                <div 
-                                    className={backButtonVisibility} 
-                                    onClick={() => this.handleBackClick()} 
-                                    >{backButtonText}
-                                </div>
-                            </div>
-                                <ul className='selected-items'>
-                                    {selectedItems.map( (item, index) => (
-                                        <MenuItem 
-                                            key={index}
-                                            itemKey={index}
-                                            info={item}
-                                            editMenu={this.props.editMenu}
-                                            handleAvailableClick={() => this.handleAvailableClick(item)}
-                                            vendor_id={'rg7SuZjxSSSrv6erWCLgxOSWSKw2'}
-                                        />
-                                    )
-                                )}
-                            </ul>
-                            <ul className='categories'>
-                                {selectedCategories.map( (category, index) => (
-                                        <Category
-                                            key={index}
-                                            categoryKey={index} 
-                                            className='category'
-                                            handleCategoryClick={() => this.handleCategoryClick(category)}
-                                            info={category}
-                                        />
-                                    )
-                                )}
-                            </ul>
-                        </div>
-                    }
-                    {this.props.editMenu && this.state.viewUnavailableItems && 
+                            <ul className='selected-items'>
+                                {selectedItems.map( (item, index) => (
+                                    <MenuItem 
+                                        key={index}
+                                        itemKey={index}
+                                        info={item}
+                                        unavailable={item.unavailable}
+                                        editMenu={this.props.editMenu}
+                                        handleAvailableClick={(item, nowUnavailable) => this.handleAvailableClick(item, nowUnavailable)}
+                                        vendorId={this.props.vendorId}
+                                    />
+                                )
+                            )}
+                        </ul>
+                        <ul className='categories'>
+                            {selectedCategories.map( (category, index) => (
+                                    <Category
+                                        key={index}
+                                        categoryKey={index} 
+                                        className='category'
+                                        handleCategoryClick={() => this.handleCategoryClick(category)}
+                                        info={category}
+                                    />
+                                )
+                            )}
+                        </ul>
+                    </div>
+                }
+                {this.props.editMenu && this.state.viewUnavailableItems && 
+                    <div className='menu-interface'>
                         <ul className='unavailable-items'>
                             {unavailableItems.map( (item, index) => (
                                 <MenuItem 
                                     key={index}
                                     itemKey={index}
                                     info={item}
+                                    unavailable={item.unavailable}
                                     editMenu={this.props.editMenu}
-                                    handleAvailableClick={() => this.handleAvailableClick(item)}
-                                    vendor_id={'rg7SuZjxSSSrv6erWCLgxOSWSKw2'}
+                                    handleAvailableClick={(item, nowUnavailable) => this.handleAvailableClick(item, nowUnavailable)}
+                                    vendorId={this.props.vendorId}
                                 />
                             )
                         )}
                         </ul>
-                    }
-				</div>
-			)
+                    </div>
+                }
+			</div>
+		)
 	}
 }
 
